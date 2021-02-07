@@ -1,6 +1,7 @@
 /*
  * InspIRCd -- Internet Relay Chat Daemon
  *
+ *   Adaptation for icq-chat by Teufelchen
  *   Copyright (C) 2019 Matt Schatz <genius3000@g3k.solutions>
  *   Copyright (C) 2019 Filippo Cortigiani <simos@simosnap.org>
  *   Copyright (C) 2018-2019 linuxdaemon <linuxdaemon.irc@gmail.com>
@@ -423,14 +424,16 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		}
 		else if (f->action == FA_BLOCK)
 		{
-			ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s had their message to %s filtered as it matched %s (%s)",
-				user->nick.c_str(), msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str()));
+			ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s had their message to %s filtered as it matched %s (%s) <",
+				user->nick.c_str(), msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str())+details.text+">");
 			if (notifyuser)
 			{
-				if (msgtarget.type == MessageTarget::TYPE_CHANNEL)
-					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<Channel>(), InspIRCd::Format("Your message to this channel was blocked: %s.", f->reason.c_str())));
-				else
-					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<User>(), InspIRCd::Format("Your message to this user was blocked: %s.", f->reason.c_str())));
+				if (msgtarget.type == MessageTarget::TYPE_CHANNEL){
+					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, msgtarget.GetName(), "Your message to the Channel could not get delivered. If this error persists you can contact us at #Help for assistance. ("+f->reason+")");
+				}
+				else {
+					user->WriteNotice("Your message to "+msgtarget.GetName()+" could not get delivered. If this error persists you can contact us at #Help for assistance. ("+f->reason+")");
+				}
 			}
 			else
 				details.echo_original = true;
@@ -440,9 +443,9 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 			if (notifyuser)
 			{
 				if (msgtarget.type == MessageTarget::TYPE_CHANNEL)
-					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<Channel>(), InspIRCd::Format("Your message to this channel was blocked: %s.", f->reason.c_str())));
+					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, msgtarget.GetName(), InspIRCd::Format("Message to channel blocked (%s)", f->reason.c_str()));
 				else
-					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<User>(), InspIRCd::Format("Your message to this user was blocked: %s.", f->reason.c_str())));
+					user->WriteNotice("Your message to "+msgtarget.GetName()+" was blocked: "+f->reason);
 			}
 			else
 				details.echo_original = true;
@@ -470,10 +473,10 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 		else if (f->action == FA_GLINE)
 		{
 			GLine* gl = new GLine(ServerInstance->Time(), f->duration, ServerInstance->Config->ServerName.c_str(), f->reason.c_str(), "*", user->GetIPString());
-			ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s (%s) was G-lined for %s (expires on %s) because their message to %s matched %s (%s)",
+			ServerInstance->SNO->WriteGlobalSno('f', InspIRCd::Format("%s (%s) was G-lined for %s (expires on %s) because their message to %s matched %s (%s) <",
 				user->nick.c_str(), gl->Displayable().c_str(), InspIRCd::DurationString(f->duration).c_str(),
 				InspIRCd::TimeString(ServerInstance->Time() + f->duration).c_str(),
-				msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str()));
+				msgtarget.GetName().c_str(), f->freeform.c_str(), f->reason.c_str())+details.text+">");
 			if (ServerInstance->XLines->AddLine(gl,NULL))
 			{
 				ServerInstance->XLines->ApplyLines();
