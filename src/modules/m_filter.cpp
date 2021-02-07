@@ -429,10 +429,10 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 			if (notifyuser)
 			{
 				if (msgtarget.type == MessageTarget::TYPE_CHANNEL){
-					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, msgtarget.GetName(), "Your message to the Channel could not get delivered. If this error persists you can contact us at #Help for assistance. ("+f->reason+")");
+					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<Channel>(), InspIRCd::Format("Your message to the Channel could not get delivered. If this error persists you can contact us at #Help for assistance. ("+f->reason+")")));
 				}
 				else {
-					user->WriteNotice("Your message to "+msgtarget.GetName()+" could not get delivered. If this error persists you can contact us at #Help for assistance. ("+f->reason+")");
+					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<User>(), InspIRCd::Format("Your message to "+msgtarget.GetName()+" could not get delivered. If this error persists you can contact us at #Help for assistance. ("+f->reason+")")));
 				}
 			}
 			else
@@ -443,9 +443,9 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 			if (notifyuser)
 			{
 				if (msgtarget.type == MessageTarget::TYPE_CHANNEL)
-					user->WriteNumeric(ERR_CANNOTSENDTOCHAN, msgtarget.GetName(), InspIRCd::Format("Message to channel blocked (%s)", f->reason.c_str()));
+					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<Channel>(), InspIRCd::Format("Your message to this channel was blocked: %s.", f->reason.c_str())));
 				else
-					user->WriteNotice("Your message to "+msgtarget.GetName()+" was blocked: "+f->reason);
+					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<User>(), InspIRCd::Format("Your message to this user was blocked: %s.", f->reason.c_str())));
 			}
 			else
 				details.echo_original = true;
