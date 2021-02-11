@@ -31,6 +31,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#define BLOCK_CHANNEL "Your message to the Channel could not get delivered. If this error persists you can contact us at #Help for assistance. Reason(%s)"
+
+//                                  Username
+#define BLOCK_USER "Your message to %s could not get delivered. If this error persists you can contact us at #Help for assistance. Reason(%s)"
+
 
 #include "inspircd.h"
 #include "xline.h"
@@ -429,10 +434,10 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 			if (notifyuser)
 			{
 				if (msgtarget.type == MessageTarget::TYPE_CHANNEL){
-					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<Channel>(), InspIRCd::Format("Your message to the Channel could not get delivered. If this error persists you can contact us at #Help for assistance. ("+f->reason+")")));
+					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<Channel>(), InspIRCd::Format(BLOCK_CHANNEL, f->reason.c_str())));
 				}
 				else {
-					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<User>(), InspIRCd::Format("Your message to "+msgtarget.GetName()+" could not get delivered. If this error persists you can contact us at #Help for assistance. ("+f->reason+")")));
+					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<User>(), InspIRCd::Format(BLOCK_USER, msgtarget.GetName().c_str(), f->reason.c_str())));
 				}
 			}
 			else
