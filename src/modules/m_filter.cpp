@@ -437,7 +437,7 @@ ModResult ModuleFilter::OnUserPreMessage(User* user, const MessageTarget& msgtar
 					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<Channel>(), InspIRCd::Format(BLOCK_CHANNEL, f->reason.c_str())));
 				}
 				else {
-					user->WriteNumeric(Numerics::CannotSendTo(msgtarget.Get<User>(), InspIRCd::Format(BLOCK_USER, msgtarget.GetName().c_str(), f->reason.c_str())));
+					user->WriteNotice(InspIRCd::Format(BLOCK_USER, msgtarget.GetName().c_str(), f->reason.c_str()));
 				}
 			}
 			else
